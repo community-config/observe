@@ -34,6 +34,10 @@ loki + promtail + gateway {
     namespace: error 'namespace is a required input',
     cluster: error 'cluster is a required input',
 
+    arn_ingester_sa:      error ' arn_ingester_sa is required',
+    arn_querier_sa:       error ' arn_querier_sa is required',
+    arm_table_manager_sa: error ' arm_table_manager_sa is required',
+
     htpasswd_contents:: null,
 
     stateful_ingesters: true,
@@ -84,8 +88,10 @@ loki + promtail + gateway {
     },
   },
 
-  consul_deployment+:
-    deployment.spec.template.metadata.withAnnotationsMixin({ 'linkerd.io/inject': 'disabled' }),
+
+  //
+  // StatsfulSet - memcached
+  //
 
   memcached_rbac:
     $.util.namespacedRBAC('memcached', [
@@ -124,6 +130,30 @@ loki + promtail + gateway {
     statefulSet+:
       statefulSet.spec.template.metadata.withAnnotationsMixin({ 'linkerd.io/inject': 'disabled' }),
   },
+
+  //
+  // StatsfulSet - Ingester, compactor, qwuerier
+  //
+  ingester_rbac:
+    $.util.namespacedRBAC('ingester', [
+      policyRule.new() +
+      policyRule.withApiGroups(['']) +
+      policyRule.withResources(['']) +
+      policyRule.withVerbs(['']),
+    ]),
+
+  ingester_statefulset+: {
+    statefulSet+:
+      statefulSet.spec.template.metadata.withAnnotationsMixin({ 'linkerd.io/inject': 'disabled' }),
+  },
+
+  //
+  // Deployment
+  //
+
+  consul_deployment+:
+    deployment.spec.template.metadata.withAnnotationsMixin({ 'linkerd.io/inject': 'disabled' }),
+
 
   //Add headers for query-frontend health check
   query_frontend_container+::
@@ -168,6 +198,11 @@ loki + promtail + gateway {
     ]),
   query_frontend_deployment+:
     deployment.spec.template.spec.withServiceAccountName('loki-query-frontend'),
+
+
+  //
+  // StatefulSet
+  //
 
   //Removing the client config from promtail configmap
   promtail_config +: {
