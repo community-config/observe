@@ -185,13 +185,13 @@ loki + promtail + gateway {
 
   consul_deployment+:
     statefulSet.spec.template.spec.withServiceAccountName('consul') +
+    deployment.spec.template.spec.securityContext.withFsGroup(1000) +
+    deployment.spec.template.spec.securityContext.withRunAsUser(1000) +
+    deployment.spec.template.spec.securityContext.withRunAsNonRoot(true) +
     deployment.spec.template.metadata.withAnnotationsMixin({ 'linkerd.io/inject': 'disabled' }),
 
 
-  //Add headers for query-frontend health check
-  //
-  // TODO: figure this out with Sindhu
-  //
+  // TODO: surface this and/or fix
   query_frontend_container+::
     container.mixin.readinessProbe.httpGet.withHttpHeaders([
       {
