@@ -23,12 +23,12 @@ loki + promtail + gateway {
 
   // TODO: use helper (or something like it)
 
-  // local myRbac(name) = $.util.namespacedRBAC(name, [
-  //     policyRule.new() +
-  //     policyRule.withApiGroups(['']) +
-  //     policyRule.withResources(['']) +
-  //     policyRule.withVerbs(['']),
-  //   ]),
+  local minimalRbac(name) = $.util.namespacedRBAC(name, [
+      policyRule.new() +
+      policyRule.withApiGroups(['']) +
+      policyRule.withResources(['']) +
+      policyRule.withVerbs(['']),
+    ]),
 
   _config+:: {
     namespace: error 'namespace is a required input',
@@ -93,47 +93,48 @@ loki + promtail + gateway {
   // StatsfulSet - memcached
   //
 
-  memcached_rbac:
-    $.util.namespacedRBAC('memcached', [
-      policyRule.new() +
-      policyRule.withApiGroups(['']) +
-      policyRule.withResources(['']) +
-      policyRule.withVerbs(['']),
-    ]),
+  // memcached_chunks_rbac:
+  //   $.util.namespacedRBAC('memcached-chunks', [
+  //     policyRule.new() +
+  //     policyRule.withApiGroups(['']) +
+  //     policyRule.withResources(['']) +
+  //     policyRule.withVerbs(['']),
+  //   ]),
 
-  memcached+: {
+  memcached_chunks+: {
+    rbac:
+      minimalRbac('memcached-chunks'),
+
     statefulSet+:
+      statefulSet.spec.template.spec.withServiceAccountName('memcached-chunks') +
       statefulSet.spec.template.metadata.withAnnotationsMixin({ 'linkerd.io/inject': 'disabled' }),
   },
-
-  memcached_frontend_rbac:
-    $.util.namespacedRBAC('memcached-frontend', [
-      policyRule.new() +
-      policyRule.withApiGroups(['']) +
-      policyRule.withResources(['']) +
-      policyRule.withVerbs(['']),
-    ]),
 
   memcached_frontend+: {
+    rbac:
+      minimalRbac('memcached-frontend'),
+
     statefulSet+:
+      statefulSet.spec.template.spec.withServiceAccountName('memcached-frontend') +
       statefulSet.spec.template.metadata.withAnnotationsMixin({ 'linkerd.io/inject': 'disabled' }),
   },
 
-  memcached_index_queries_rbac:
-    $.util.namespacedRBAC('memcached-index-queries', [
-      policyRule.new() +
-      policyRule.withApiGroups(['']) +
-      policyRule.withResources(['']) +
-      policyRule.withVerbs(['']),
-    ]),
   memcached_index_queries+: {
+    rbac:
+      minimalRbac('memcached-index-queries'),
+
     statefulSet+:
+      statefulSet.spec.template.spec.withServiceAccountName('memcached-index-queries') +
       statefulSet.spec.template.metadata.withAnnotationsMixin({ 'linkerd.io/inject': 'disabled' }),
   },
 
+
+  // TODO: Figure out why helper func only works for memcached, likely because of the wrapping memcache{} block
+
   //
-  // StatsfulSet - Ingester, compactor, qwuerier
+  // StatsfulSet - Ingester, compactor, querier
   //
+
   ingester_rbac:
     $.util.namespacedRBAC('ingester', [
       policyRule.new() +
@@ -142,10 +143,33 @@ loki + promtail + gateway {
       policyRule.withVerbs(['']),
     ]),
 
-  ingester_statefulset+: {
-    statefulSet+:
-      statefulSet.spec.template.metadata.withAnnotationsMixin({ 'linkerd.io/inject': 'disabled' }),
-  },
+  ingester_statefulset+:
+    statefulSet.spec.template.spec.withServiceAccountName('ingester') +
+    statefulSet.spec.template.metadata.withAnnotationsMixin({ 'linkerd.io/inject': 'disabled' }),
+
+  compactor_rbac:
+    $.util.namespacedRBAC('compactor', [
+      policyRule.new() +
+      policyRule.withApiGroups(['']) +
+      policyRule.withResources(['']) +
+      policyRule.withVerbs(['']),
+    ]),
+
+  compactor_statefulset+:
+    statefulSet.spec.template.spec.withServiceAccountName('compactor') +
+    statefulSet.spec.template.metadata.withAnnotationsMixin({ 'linkerd.io/inject': 'disabled' }),
+
+  querier_rbac:
+    $.util.namespacedRBAC('querier', [
+      policyRule.new() +
+      policyRule.withApiGroups(['']) +
+      policyRule.withResources(['']) +
+      policyRule.withVerbs(['']),
+    ]),
+
+  querier_statefulset+:
+    statefulSet.spec.template.spec.withServiceAccountName('querier') +
+    statefulSet.spec.template.metadata.withAnnotationsMixin({ 'linkerd.io/inject': 'disabled' }),
 
   //
   // Deployment
@@ -156,6 +180,9 @@ loki + promtail + gateway {
 
 
   //Add headers for query-frontend health check
+  //
+  // TODO: figure this out with Sindhu
+  //
   query_frontend_container+::
     container.mixin.readinessProbe.httpGet.withHttpHeaders([
       {
@@ -164,7 +191,9 @@ loki + promtail + gateway {
       },
     ]),
 
-  // ***
+  //
+  // Deployment
+  //
   table_manager_deployment+:
     deployment.spec.template.spec.securityContext.withFsGroup(10001),
 
@@ -175,8 +204,9 @@ loki + promtail + gateway {
       policyRule.withResources(['']) +
       policyRule.withVerbs(['']),
     ]),
+
   distributor_deployment+:
-    deployment.spec.template.spec.withServiceAccountName('loki-distributor'),
+      deployment.spec.template.spec.withServiceAccountName('loki-distributor'),
 
   gateway_rbac:
     $.util.namespacedRBAC('loki-gateway', [
@@ -198,11 +228,6 @@ loki + promtail + gateway {
     ]),
   query_frontend_deployment+:
     deployment.spec.template.spec.withServiceAccountName('loki-query-frontend'),
-
-
-  //
-  // StatefulSet
-  //
 
   //Removing the client config from promtail configmap
   promtail_config +: {
