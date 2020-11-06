@@ -175,7 +175,16 @@ loki + promtail + gateway {
   // Deployment
   //
 
+  consul_rbac:
+    $.util.namespacedRBAC('consul', [
+      policyRule.new() +
+      policyRule.withApiGroups(['']) +
+      policyRule.withResources(['']) +
+      policyRule.withVerbs(['']),
+    ]),
+
   consul_deployment+:
+    statefulSet.spec.template.spec.withServiceAccountName('consul') +
     deployment.spec.template.metadata.withAnnotationsMixin({ 'linkerd.io/inject': 'disabled' }),
 
 
