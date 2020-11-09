@@ -45,6 +45,7 @@ loki + promtail + gateway {
 
     stateful_queriers: true,
     querier_pvc_class: 'gp2',
+    compactor_pvc_class: 'gp2',
 
     storage_backend: 's3',
     s3_address: error 's3_address is required (Ex: us-east-1)',
