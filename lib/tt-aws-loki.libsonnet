@@ -1,8 +1,7 @@
 local k = import 'ksonnet-util/kausal.libsonnet';
-local gateway = import 'loki/gateway.libsonnet';
+# local gateway = import 'loki/gateway.libsonnet';
 local loki = import 'loki/loki.libsonnet';
 local frontend = import 'loki/query-frontend.libsonnet';
-local promtail = import 'promtail/promtail.libsonnet';
 local memcached = import 'memcached/memcached.libsonnet';
 
 // these allow leveraging the base types so we can extend them. For more info see:
@@ -19,7 +18,7 @@ local daemonSet = k.apps.v1.daemonSet;
 local policyRule = k.rbac.v1beta1.policyRule;
 local envVar = if std.objectHasAll(k.core.v1, 'envVar') then k.core.v1.envVar else k.core.v1.container.envType;
 
-loki + promtail + gateway {
+loki {
 
   // TODO: use helper (or something like it)
 
@@ -60,14 +59,6 @@ loki + promtail + gateway {
 
     index_prefix: error 'index_prefix is required',
 
-    promtail_config+: {
-      clients: [{
-        scheme:: 'http',
-        hostname:: 'gateway.%(namespace)s.svc' % $._config,
-        container_root_path:: '/var/lib/docker',
-      }],
-    },
-
     replication_factor: 3,
     consul_replicas: 1,
 
@@ -93,14 +84,6 @@ loki + promtail + gateway {
   //
   // StatsfulSet - memcached
   //
-
-  // memcached_chunks_rbac:
-  //   $.util.namespacedRBAC('memcached-chunks', [
-  //     policyRule.new() +
-  //     policyRule.withApiGroups(['']) +
-  //     policyRule.withResources(['']) +
-  //     policyRule.withVerbs(['']),
-  //   ]),
 
   memcached_chunks+: {
     rbac:
@@ -176,19 +159,7 @@ loki + promtail + gateway {
   // Deployment
   //
 
-  consul_rbac:
-    $.util.namespacedRBAC('consul', [
-      policyRule.new() +
-      policyRule.withApiGroups(['']) +
-      policyRule.withResources(['']) +
-      policyRule.withVerbs(['']),
-    ]),
-
   consul_deployment+:
-    statefulSet.spec.template.spec.withServiceAccountName('consul') +
-    deployment.spec.template.spec.securityContext.withFsGroup(1000) +
-    deployment.spec.template.spec.securityContext.withRunAsUser(1000) +
-    deployment.spec.template.spec.securityContext.withRunAsNonRoot(true) +
     deployment.spec.template.metadata.withAnnotationsMixin({ 'linkerd.io/inject': 'disabled' }),
 
 
@@ -218,16 +189,16 @@ loki + promtail + gateway {
   distributor_deployment+:
       deployment.spec.template.spec.withServiceAccountName('loki-distributor'),
 
-  gateway_rbac:
-    $.util.namespacedRBAC('loki-gateway', [
-      policyRule.new() +
-      policyRule.withApiGroups(['']) +
-      policyRule.withResources(['']) +
-      policyRule.withVerbs(['']),
-    ]),
-  gateway_deployment+:
-    deployment.spec.template.spec.withServiceAccountName('loki-gateway') +
-    deployment.spec.template.spec.securityContext.withFsGroup(10001),
+  // gateway_rbac:
+  //   $.util.namespacedRBAC('loki-gateway', [
+  //     policyRule.new() +
+  //     policyRule.withApiGroups(['']) +
+  //     policyRule.withResources(['']) +
+  //     policyRule.withVerbs(['']),
+  //   ]),
+  // gateway_deployment+:
+  //   deployment.spec.template.spec.withServiceAccountName('loki-gateway') +
+  //   deployment.spec.template.spec.securityContext.withFsGroup(10001),
 
   query_frontend_rbac:
     $.util.namespacedRBAC('loki-query-frontend', [
@@ -238,26 +209,4 @@ loki + promtail + gateway {
     ]),
   query_frontend_deployment+:
     deployment.spec.template.spec.withServiceAccountName('loki-query-frontend'),
-
-  //Removing the client config from promtail configmap
-  promtail_config +: {
-    clients:: null,
-  },
-
-  //promtail container arg
-  promtail_args+: {
-    'client.url': 'http://$(GATEWAY_USERNAME):$(GATEWAY_PASSWORD)@gateway.loki.svc/loki/api/v1/push',
-  },
-
-  //Promtail secrets
-  promtail_container+: {
-    env+: [
-      envVar.fromSecretRef('GATEWAY_USERNAME', 'promtail-secret', 'username'),
-      envVar.fromSecretRef('GATEWAY_PASSWORD', 'promtail-secret', 'password'),
-    ],
-  },
-
-  //Hide this secret in generated json. We will manually create this in the cluster for now
-  gateway_secret::null
-
 }
