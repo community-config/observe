@@ -1,0 +1,492 @@
+# Pod security policies will NOT be created for service account 'default' in namespace 'loki' with following workdloads:
+#	Kind: Deployment, Name: ruler, Image: grafana/loki:2.0.0
+#	Kind: Deployment, Name: table-manager, Image: grafana/loki:2.0.0
+---
+# Pod security policies will be created for service account 'compactor' in namespace 'loki' with following workdloads:
+#	Kind: StatefulSet, Name: compactor, Image: grafana/loki:2.0.0
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  creationTimestamp: null
+  name: psp-for-loki-compactor
+spec:
+  fsGroup:
+    rule: RunAsAny
+  hostPorts:
+  - max: 0
+    min: 0
+  runAsUser:
+    rule: RunAsAny
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  volumes:
+  - configMap
+  - secret
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
+  name: use-psp-by-loki:compactor
+  namespace: loki
+rules:
+- apiGroups:
+  - policy
+  resourceNames:
+  - psp-for-loki-compactor
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  creationTimestamp: null
+  name: use-psp-by-loki:compactor-binding
+  namespace: loki
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: use-psp-by-loki:compactor
+subjects:
+- kind: ServiceAccount
+  name: compactor
+  namespace: loki
+---
+# Pod security policies will be created for service account 'consul-sidekick' in namespace 'loki' with following workdloads:
+#	Kind: Deployment, Name: consul, Image: consul:1.5.3
+#	Kind: Deployment, Name: consul, Image: weaveworks/consul-sidekick:master-f18ad13
+#	Kind: Deployment, Name: consul, Image: prom/statsd-exporter:v0.12.2
+#	Kind: Deployment, Name: consul, Image: prom/consul-exporter:v0.5.0
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  creationTimestamp: null
+  name: psp-for-loki-consul-sidekick
+spec:
+  fsGroup:
+    rule: RunAsAny
+  hostPorts:
+  - max: 0
+    min: 0
+  runAsUser:
+    rule: RunAsAny
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  volumes:
+  - configMap
+  - secret
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
+  name: use-psp-by-loki:consul-sidekick
+  namespace: loki
+rules:
+- apiGroups:
+  - policy
+  resourceNames:
+  - psp-for-loki-consul-sidekick
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  creationTimestamp: null
+  name: use-psp-by-loki:consul-sidekick-binding
+  namespace: loki
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: use-psp-by-loki:consul-sidekick
+subjects:
+- kind: ServiceAccount
+  name: consul-sidekick
+  namespace: loki
+---
+# Pod security policies will be created for service account 'distributor' in namespace 'loki' with following workdloads:
+#	Kind: Deployment, Name: distributor, Image: grafana/loki:2.0.0
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  creationTimestamp: null
+  name: psp-for-loki-distributor
+spec:
+  fsGroup:
+    rule: RunAsAny
+  hostPorts:
+  - max: 0
+    min: 0
+  runAsUser:
+    rule: RunAsAny
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  volumes:
+  - configMap
+  - secret
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
+  name: use-psp-by-loki:distributor
+  namespace: loki
+rules:
+- apiGroups:
+  - policy
+  resourceNames:
+  - psp-for-loki-distributor
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  creationTimestamp: null
+  name: use-psp-by-loki:distributor-binding
+  namespace: loki
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: use-psp-by-loki:distributor
+subjects:
+- kind: ServiceAccount
+  name: distributor
+  namespace: loki
+---
+# Pod security policies will be created for service account 'ingester' in namespace 'loki' with following workdloads:
+#	Kind: StatefulSet, Name: ingester, Image: grafana/loki:2.0.0
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  creationTimestamp: null
+  name: psp-for-loki-ingester
+spec:
+  fsGroup:
+    rule: RunAsAny
+  hostPorts:
+  - max: 0
+    min: 0
+  runAsUser:
+    rule: RunAsAny
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  volumes:
+  - configMap
+  - secret
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
+  name: use-psp-by-loki:ingester
+  namespace: loki
+rules:
+- apiGroups:
+  - policy
+  resourceNames:
+  - psp-for-loki-ingester
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  creationTimestamp: null
+  name: use-psp-by-loki:ingester-binding
+  namespace: loki
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: use-psp-by-loki:ingester
+subjects:
+- kind: ServiceAccount
+  name: ingester
+  namespace: loki
+---
+# Pod security policies will be created for service account 'memcached-chunks' in namespace 'loki' with following workdloads:
+#	Kind: StatefulSet, Name: memcached, Image: memcached:1.5.17-alpine
+#	Kind: StatefulSet, Name: memcached, Image: prom/memcached-exporter:v0.6.0
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  creationTimestamp: null
+  name: psp-for-loki-memcached-chunks
+spec:
+  fsGroup:
+    rule: RunAsAny
+  hostPorts:
+  - max: 0
+    min: 0
+  runAsUser:
+    rule: RunAsAny
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  volumes:
+  - secret
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
+  name: use-psp-by-loki:memcached-chunks
+  namespace: loki
+rules:
+- apiGroups:
+  - policy
+  resourceNames:
+  - psp-for-loki-memcached-chunks
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  creationTimestamp: null
+  name: use-psp-by-loki:memcached-chunks-binding
+  namespace: loki
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: use-psp-by-loki:memcached-chunks
+subjects:
+- kind: ServiceAccount
+  name: memcached-chunks
+  namespace: loki
+---
+# Pod security policies will be created for service account 'memcached-frontend' in namespace 'loki' with following workdloads:
+#	Kind: StatefulSet, Name: memcached-frontend, Image: memcached:1.5.17-alpine
+#	Kind: StatefulSet, Name: memcached-frontend, Image: prom/memcached-exporter:v0.6.0
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  creationTimestamp: null
+  name: psp-for-loki-memcached-frontend
+spec:
+  fsGroup:
+    rule: RunAsAny
+  hostPorts:
+  - max: 0
+    min: 0
+  runAsUser:
+    rule: RunAsAny
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  volumes:
+  - secret
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
+  name: use-psp-by-loki:memcached-frontend
+  namespace: loki
+rules:
+- apiGroups:
+  - policy
+  resourceNames:
+  - psp-for-loki-memcached-frontend
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  creationTimestamp: null
+  name: use-psp-by-loki:memcached-frontend-binding
+  namespace: loki
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: use-psp-by-loki:memcached-frontend
+subjects:
+- kind: ServiceAccount
+  name: memcached-frontend
+  namespace: loki
+---
+# Pod security policies will be created for service account 'memcached-index-queries' in namespace 'loki' with following workdloads:
+#	Kind: StatefulSet, Name: memcached-index-queries, Image: memcached:1.5.17-alpine
+#	Kind: StatefulSet, Name: memcached-index-queries, Image: prom/memcached-exporter:v0.6.0
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  creationTimestamp: null
+  name: psp-for-loki-memcached-index-queries
+spec:
+  fsGroup:
+    rule: RunAsAny
+  hostPorts:
+  - max: 0
+    min: 0
+  runAsUser:
+    rule: RunAsAny
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  volumes:
+  - secret
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
+  name: use-psp-by-loki:memcached-index-queries
+  namespace: loki
+rules:
+- apiGroups:
+  - policy
+  resourceNames:
+  - psp-for-loki-memcached-index-queries
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  creationTimestamp: null
+  name: use-psp-by-loki:memcached-index-queries-binding
+  namespace: loki
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: use-psp-by-loki:memcached-index-queries
+subjects:
+- kind: ServiceAccount
+  name: memcached-index-queries
+  namespace: loki
+---
+# Pod security policies will be created for service account 'querier' in namespace 'loki' with following workdloads:
+#	Kind: StatefulSet, Name: querier, Image: grafana/loki:2.0.0
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  creationTimestamp: null
+  name: psp-for-loki-querier
+spec:
+  fsGroup:
+    rule: RunAsAny
+  hostPorts:
+  - max: 0
+    min: 0
+  runAsUser:
+    rule: RunAsAny
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  volumes:
+  - configMap
+  - secret
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
+  name: use-psp-by-loki:querier
+  namespace: loki
+rules:
+- apiGroups:
+  - policy
+  resourceNames:
+  - psp-for-loki-querier
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  creationTimestamp: null
+  name: use-psp-by-loki:querier-binding
+  namespace: loki
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: use-psp-by-loki:querier
+subjects:
+- kind: ServiceAccount
+  name: querier
+  namespace: loki
+---
+# Pod security policies will be created for service account 'query-frontend' in namespace 'loki' with following workdloads:
+#	Kind: Deployment, Name: query-frontend, Image: grafana/loki:2.0.0
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  creationTimestamp: null
+  name: psp-for-loki-query-frontend
+spec:
+  fsGroup:
+    rule: RunAsAny
+  hostPorts:
+  - max: 0
+    min: 0
+  runAsUser:
+    rule: RunAsAny
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  volumes:
+  - secret
+  - configMap
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
+  name: use-psp-by-loki:query-frontend
+  namespace: loki
+rules:
+- apiGroups:
+  - policy
+  resourceNames:
+  - psp-for-loki-query-frontend
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  creationTimestamp: null
+  name: use-psp-by-loki:query-frontend-binding
+  namespace: loki
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: use-psp-by-loki:query-frontend
+subjects:
+- kind: ServiceAccount
+  name: query-frontend
+  namespace: loki
