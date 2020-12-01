@@ -189,7 +189,8 @@ loki {
       policyRule.withApiGroups(['']) +
       policyRule.withResources(['']) +
       policyRule.withVerbs(['']),
-    ], pullSecrets=$._config.image_pull_secrets),
+    ],
+    pullSecrets=$._config.image_pull_secrets),
 
   distributor_deployment+:
       deployment.spec.template.spec.withServiceAccountName('distributor'),
