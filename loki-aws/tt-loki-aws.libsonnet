@@ -2,7 +2,7 @@
 local k = import 'ksonnet-util/kausal.libsonnet';
 
 // Loki Core Configuration
-# local gateway = import 'loki/gateway.libsonnet';
+// local gateway = import 'loki/gateway.libsonnet';
 local loki = import 'loki/loki.libsonnet';
 local frontend = import 'loki/query-frontend.libsonnet';
 local memcached = import 'memcached/memcached.libsonnet';
@@ -32,11 +32,11 @@ loki {
   loki_psp:   std.native('parseYaml')(importstr 'loki-psp.yaml'),
 
   local emptyPolicy = [
-      policyRule.new() +
-      policyRule.withApiGroups(['']) +
-      policyRule.withResources(['']) +
-      policyRule.withVerbs(['']),
-    ],
+    policyRule.new() +
+    policyRule.withApiGroups(['']) +
+    policyRule.withResources(['']) +
+    policyRule.withVerbs(['']),
+  ],
 
   // TODO: debug why this doesn't work for non-memcache
   local minimalRbac(name) = $.util.namespacedRBAC(name, emptyPolicy, pullSecrets=$._config.image_pull_secrets),
@@ -87,16 +87,16 @@ loki {
 
   compactor_rbac:
     $.util.namespacedRBAC('compactor', emptyPolicy,
-    annotations={ 'eks.amazonaws.com/role-arn': $._config.arn_compactor_sa },
-    pullSecrets=$._config.image_pull_secrets),
+      annotations={ 'eks.amazonaws.com/role-arn': $._config.arn_compactor_sa },
+      pullSecrets=$._config.image_pull_secrets),
 
   compactor_statefulset+:
     statefulSet.spec.template.spec.withServiceAccountName('compactor'),
 
   querier_rbac:
     $.util.namespacedRBAC('querier', emptyPolicy,
-    annotations={ 'eks.amazonaws.com/role-arn': $._config.arn_querier_sa },
-    pullSecrets=$._config.image_pull_secrets),
+      annotations={ 'eks.amazonaws.com/role-arn': $._config.arn_querier_sa },
+      pullSecrets=$._config.image_pull_secrets),
 
   querier_statefulset+:
     statefulSet.spec.template.spec.withServiceAccountName('querier') +
@@ -115,7 +115,7 @@ loki {
   //
   table_manager_rbac:
     $.util.namespacedRBAC('table-manager', emptyPolicy,
-    pullSecrets=$._config.image_pull_secrets),
+      pullSecrets=$._config.image_pull_secrets),
 
   table_manager_deployment+:
     deployment.spec.template.spec.securityContext.withFsGroup(10001) +
@@ -123,11 +123,11 @@ loki {
 
   distributor_rbac:
     $.util.namespacedRBAC('distributor', emptyPolicy,
-    pullSecrets=$._config.image_pull_secrets),
+      pullSecrets=$._config.image_pull_secrets),
 
   distributor_deployment+:
-      deployment.spec.template.spec.withServiceAccountName('distributor') +
-      deployment.mixin.spec.withReplicas($._config.distributor_replicas),
+    deployment.spec.template.spec.withServiceAccountName('distributor') +
+    deployment.mixin.spec.withReplicas($._config.distributor_replicas),
 
   // Gateway is not used, Ingress instead.
   //
@@ -144,7 +144,7 @@ loki {
 
   query_frontend_rbac:
     $.util.namespacedRBAC('query-frontend', emptyPolicy,
-    pullSecrets=$._config.image_pull_secrets),
+      pullSecrets=$._config.image_pull_secrets),
 
   query_frontend_deployment+:
     deployment.spec.template.spec.withServiceAccountName('query-frontend'),
