@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "dependencies": [
+    {
+      "source": {
+        "git": {
+          "remote": "https://github.com/everquoteinc/loki.git",
+          "subdir": "production/ksonnet/loki"
+        }
+      },
+      "version": "ever-loki-v2-plus"
+    },
+    {
+      "source": {
+        "git": {
+          "remote": "https://github.com/grafana/jsonnet-libs.git",
+          "subdir": "ksonnet-util"
+        }
+      },
+      "version": "master"
+    }
+  ],
+  "legacyImports": true
+}
