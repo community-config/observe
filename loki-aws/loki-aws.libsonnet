@@ -1,2 +1,2 @@
-(import 'tt-aws-loki.libsonnet') +
+(import 'tt-loki-aws.libsonnet') +
 (import 'config.libsonnet')
