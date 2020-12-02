@@ -9,11 +9,9 @@
     arn_querier_sa:       error ' arn_querier_sa is required',
     arn_table_manager_sa: error ' arn_table_manager_sa is required',
 
-    // named k8s secret.  this MUST be created in whatever namespace(s) are used
-    image_pull_secret: 'dockerhub-credentials',
-
-      // imagePullSecrets added to each Service Account.
-    image_pull_secrets: { 'name': self.image_pull_secret },
+    // named k8s secret --> 'dockerhub-credentials'  MUST be created in whatever
+    // namespace(s) are used. imagePullSecrets are added to each Service Account
+    image_pull_secrets: { 'name': 'dockerhub-credentials' },
 
     htpasswd_contents:: null,
 
@@ -36,20 +34,12 @@
     // consul
     consul_replicas: 1,
 
-    htpasswd_contents:: null,
+    // ruler
     ruler_enabled: true,
 
     storage_backend: 's3',
     s3_address: error 's3_address is required (Ex: us-east-1)',
     s3_bucket_name: error 's3_bucket_name is required',
-
-    ruler_enabled: true,
-
-    // these are defaults 2.0+, included here to be explicit
-    using_boltdb_shipper: true,
-    index_period_hours: 24,
-    boltdb_shipper_shared_store: 's3',
-
     index_prefix: error 'index_prefix is required',
 
     # https://github.com/grafana/loki/blob/master/docs/sources/operations/storage/boltdb-shipper.md

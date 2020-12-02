@@ -36,11 +36,10 @@ loki {
       policyRule.withApiGroups(['']) +
       policyRule.withResources(['']) +
       policyRule.withVerbs(['']),
-    ]
+    ],
 
   // TODO: debug why this doesn't work for non-memcache
-  local minimalRbac(name) = $.util.namespacedRBAC(name, emptyPolicy,
-    pullSecrets=$._config.image_pull_secrets),
+  local minimalRbac(name) = $.util.namespacedRBAC(name, emptyPolicy, pullSecrets=$._config.image_pull_secrets),
 
   //
   // StatefulSets - memcached
@@ -84,7 +83,7 @@ loki {
 
   ingester_statefulset+:
     statefulSet.spec.template.spec.withServiceAccountName('ingester') +
-    statefulSet.mixin.spec.withReplicas($_config.ingester_replicas),
+    statefulSet.mixin.spec.withReplicas($._config.ingester_replicas),
 
   compactor_rbac:
     $.util.namespacedRBAC('compactor', emptyPolicy,
@@ -101,7 +100,7 @@ loki {
 
   querier_statefulset+:
     statefulSet.spec.template.spec.withServiceAccountName('querier') +
-    statefulSet.mixin.spec.withReplicas($_config.querier_replicas),
+    statefulSet.mixin.spec.withReplicas($._config.querier_replicas),
 
   //
   // Deployment
@@ -128,7 +127,7 @@ loki {
 
   distributor_deployment+:
       deployment.spec.template.spec.withServiceAccountName('distributor') +
-      deployment.mixin.spec.withReplicas($_config.distributor_replicas),
+      deployment.mixin.spec.withReplicas($._config.distributor_replicas),
 
   // Gateway is not used, Ingress instead.
   //
