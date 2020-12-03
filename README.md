@@ -18,12 +18,12 @@ The following are in the process of being added.
 Tool      | Status      | What                                 | Where
 --------- | ----------- | ------------------------------------ | -----
  k8s-mon  | In progress | [prometheus-ksonnet] + mixins        | _WIP_
- Loki     | In Progress | Distributed grep, and so much more   | [loki-aws]
+ Loki     | In Progress | Distributed grep, and so much more   | [cc-loki-eks]
  Promtail | In Progress | Logging Agent --> Loki               | _WIP_
  Cortex   | On Deck     | horiz-scalable durable metrics store | _WIP_
  Tempo    | On Deck     | horiz-scalable durable trace store   | _WIP_
 
-[loki-aws]: loki-aws
+[cc-loki-eks]: tanka/cc-loki-eks
 [prometheus-ksonnet]: https://github.com/grafana/jsonnet-libs/tree/master/prometheus-ksonnet
 
 ## Honest Footer
